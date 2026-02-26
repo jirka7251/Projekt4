@@ -1,59 +1,78 @@
-# Globální seznam pro ukládání úkolů
-ukoly = []
+from typing import List, Dict, Optional
 
-def zobrazit_ukoly():
-    """Zobrazí všechny uložené úkoly v očíslovaném seznamu."""
+# --- KONSTANTY ---
+SEPARATOR: str = "-" * 30
+MENU_TEXT: str = """
+SPRÁVCE ÚKOLŮ - HLAVNÍ MENU
+1. Přidat nový úkol
+2. Zobrazit všechny úkoly
+3. Odstranit úkol
+4. Konec programu
+"""
+
+# Globální úložiště úkolů
+ukoly: List[Dict[str, str]] = []
+
+def validovat_index(vstup_str: str) -> Optional[int]:
+    """
+    Ověří, zda je uživatelský vstup platným číslem úkolu.
+    Vrací index (od 0) nebo None v případě neplatnosti.
+    """
+    try:
+        index = int(vstup_str)
+        if 1 <= index <= len(ukoly):
+            return index - 1
+        return None
+    except ValueError:
+        return None
+
+def zobrazit_ukoly() -> None:
+    """Zobrazí přehled všech uložených úkolů."""
     if not ukoly:
-        print("\nSeznam úkolů je prázdný.")
+        print("\nOznámení: Seznam úkolů je aktuálně prázdný.")
     else:
-        print("\n--- Aktuální úkoly ---")
+        print("\n--- SEZNAM AKTUÁLNÍCH ÚKOLŮ ---")
         for i, ukol in enumerate(ukoly, 1):
-            print(f"{i}. {ukol['nazev']} - {ukol['popis']}")
-    print("-" * 22)
+            print(f"{i}. {ukol['nazev']} | Popis: {ukol['popis']}")
+    print(SEPARATOR)
 
-def pridat_ukol():
-    """Umožní uživateli přidat nový úkol. Kontroluje prázdné vstupy."""
+def pridat_ukol() -> None:
+    """Umožní uživateli vytvořit nový úkol s validací vstupů."""
     while True:
         nazev = input("Zadejte název úkolu: ").strip()
         popis = input("Zadejte popis úkolu: ").strip()
         
         if not nazev or not popis:
-            print("Chyba: Název i popis úkolu musí být vyplněny!")
+            print("Upozornění: Název i popis úkolu jsou povinná pole. Zadejte je prosím znovu.")
             continue
         
         ukoly.append({"nazev": nazev, "popis": popis})
-        print(f"Úkol '{nazev}' byl přidán.")
+        print(f"Potvrzení: Úkol '{nazev}' byl úspěšně zařazen do seznamu.")
         break
 
-def odstranit_ukol():
-    """Zobrazí úkoly a umožní jeden odstranit podle jeho čísla."""
+def odstranit_ukol() -> None:
+    """Odstraní zvolený úkol na základě pořadového čísla."""
     if not ukoly:
-        print("\nSeznam je prázdný, není co odstranit.")
+        print("\nInformace: Seznam je prázdný, neexistují žádné úkoly k odstranění.")
         return
 
     zobrazit_ukoly()
     while True:
-        try:
-            volba = int(input("Zadejte číslo úkolu, který chcete odstranit: "))
-            if 1 <= volba <= len(ukoly):
-                odstraneny = ukoly.pop(volba - 1)
-                print(f"Úkol '{odstraneny['nazev']}' byl úspěšně odstraněn.")
-                break
-            else:
-                print(f"Chyba: Úkol s číslem {volba} neexistuje.")
-        except ValueError:
-            print("Chyba: Zadejte prosím platné číslo (číslici).")
-
-def hlavni_menu():
-    """Hlavní ovládací smyčka programu."""
-    while True:
-        print("\nSprávce úkolů - Hlavní menu")
-        print("1. Přidat nový úkol")
-        print("2. Zobrazit všechny úkoly")
-        print("3. Odstranit úkol")
-        print("4. Konec programu")
+        vstup = input("Zadejte číslo úkolu pro trvalé odstranění: ")
+        index = validovat_index(vstup)
         
-        volba = input("Vyberte možnost (1-4): ").strip()
+        if index is not None:
+            odstraneny = ukoly.pop(index)
+            print(f"Potvrzení: Úkol '{odstraneny['nazev']}' byl úspěšně odstraněn.")
+            break
+        else:
+            print("Chyba: Zadané číslo neodpovídá žádnému úkolu v seznamu. Zkuste to znovu.")
+
+def hlavni_menu() -> None:
+    """Hlavní řídicí logika programu."""
+    while True:
+        print(MENU_TEXT)
+        volba = input("Zvolte akci (1-4): ").strip()
 
         if volba == "1":
             pridat_ukol()
@@ -62,10 +81,10 @@ def hlavni_menu():
         elif volba == "3":
             odstranit_ukol()
         elif volba == "4":
-            print("Ukončuji program... Na shledanou!")
+            print("Ukončuji aplikaci... Program byl korektně ukončen.")
             break
         else:
-            print("Neplatná volba, zadejte prosím číslo od 1 do 4.")
+            print("Neplatná volba. Zadejte prosím číselnou hodnotu v rozsahu 1 až 4.")
 
 if __name__ == "__main__":
     hlavni_menu()
